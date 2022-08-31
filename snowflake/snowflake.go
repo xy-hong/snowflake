@@ -3,6 +3,7 @@ package snowflake
 import (
 	"fmt"
 	"time"
+	"sync"
 )
 
 const (
@@ -17,6 +18,7 @@ const (
 )
 
 type Snowflake struct {
+	mutex 		  sync.Mutex
 	LastTimestamp int64
 	SequenceId    int
 }
@@ -28,6 +30,8 @@ type Snowflake struct {
  *
  */
 func (snowflake *Snowflake) NextId(workid int) (int64, error) {
+	snowflake.mutex.Lock()
+	defer snowflake.mutex.Unlock()
 	if workid > WORKID_MAX || workid < 0 {
 		return 0, fmt.Errorf("work id should bettwen 0 and %v, but got %v", WORKID_BITS, workid)
 	}
